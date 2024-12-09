@@ -1,11 +1,14 @@
 const express = require("express");
 
 const app = express();
-app.use("/test", (req, res) => {
-  res.send("Test route");
+app.get("/user", (req, res) => {
+  res.send({ firstName: "Mohit", lastName: "Sharma" });
 });
-app.use("/hello", (req, res) => {
-  res.send("Hello route");
+app.post("/user", (req, res) => {
+  res.send("sent to database");
+});
+app.delete("/user", (req, res) => {
+  res.send("Deleted");
 });
 app.use("/", (req, res) => {
   res.send("Home route");
