@@ -47,10 +47,17 @@ app.delete("/user", async (req, res) => {
   }
 });
 // Update data from User(id)
-app.patch("/user", async (req, res) => {
-  const userId = req.body.userId;
+app.patch("/user/:userId", async (req, res) => {
+  const userId = req.params.userId;
   const body = req.body;
   try {
+    const ALLOWED_UPDATES = ["gender", "skills", "age", "about", "photoUrl"];
+    const isValid = Object.keys(body).every((key) =>
+      ALLOWED_UPDATES.includes(key)
+    );
+    if (!isValid) {
+      throw new Error("Invalid update fields!! ");
+    }
     const user = await User.findByIdAndUpdate(userId, body, {
       runValidators: true,
     });
