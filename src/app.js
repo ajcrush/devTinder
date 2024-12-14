@@ -46,18 +46,35 @@ app.delete("/user", async (req, res) => {
     res.status(400).send("Something went wrong");
   }
 });
-// Update data from User
+// Update data from User(id)
 app.patch("/user", async (req, res) => {
   const userId = req.body.userId;
   const body = req.body;
   try {
     const user = await User.findByIdAndUpdate(userId, body, {
-      returnDocument: "after",
+      runValidators: true,
     });
     if (!user) {
       res.status(404).send("User not found");
     } else {
       res.send("user updated successfully");
+    }
+  } catch (err) {
+    res.status(400).send("Update of user failed " + err.message);
+  }
+});
+// Update data of user  using email
+app.patch("/userEmail", async (req, res) => {
+  const userEmail = req.body.emailId;
+  const body = req.body;
+  try {
+    const user = await User.findOneAndUpdate({ emailId: userEmail }, body, {
+      runValidators: true,
+    });
+    if (!user) {
+      res.status(404).send("User not found");
+    } else {
+      res.send("Update of user failed " + err.message);
     }
   } catch (err) {
     res.status(400).send("Something went wrong");
@@ -78,7 +95,7 @@ app.post("/signup", async (req, res) => {
     await user.save();
     res.send("User Add Successfully");
   } catch (err) {
-    res.status(500).send("Error adding user :", err.message);
+    res.status(500).send(`Error adding user : ${err.message}`);
   }
 });
 connectDB()
