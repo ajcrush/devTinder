@@ -2,6 +2,8 @@ const express = require("express");
 const app = express();
 const connectDB = require("./config/database");
 const User = require("./config/models/user");
+const { userValidation } = require("./utils/validation");
+const bcrypt = require("bcrypt");
 
 app.use(express.json());
 // Get user by Email(/user)
@@ -97,8 +99,16 @@ app.get("/feed", async (req, res) => {
   }
 });
 app.post("/signup", async (req, res) => {
-  const user = new User(req.body);
   try {
+    userValidation(req);
+    const { emailId, password, firstName, lastName } = req.body;
+    const passHash = await bcrypt.hash(password, 10);
+    const user = new User({
+      emailId,
+      firstName,
+      lastName,
+      password: passHash,
+    });
     await user.save();
     res.send("User Add Successfully");
   } catch (err) {
