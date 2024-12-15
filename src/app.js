@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const connectDB = require("./config/database");
 const User = require("./config/models/user");
-const { userValidation } = require("./utils/validation");
+const { userValidation, loginValidation } = require("./utils/validation");
 const bcrypt = require("bcrypt");
 
 app.use(express.json());
@@ -113,6 +113,24 @@ app.post("/signup", async (req, res) => {
     res.send("User Add Successfully");
   } catch (err) {
     res.status(500).send(`Error adding user : ${err.message}`);
+  }
+});
+app.post("/login", async (req, res) => {
+  try {
+    const { emailId, password } = req.body;
+    loginValidation(emailId);
+    const user = await User.findOne({ emailId: emailId });
+    if (!user) {
+      throw new Error("Invalid crendentials");
+    }
+    const isPass = await bcrypt.compare(password, user.password);
+    if (isPass) {
+      res.send("Login successful");
+    } else {
+      throw new Error("Invalid crendentials");
+    }
+  } catch (err) {
+    res.status(500).send(`Error : ${err.message}`);
   }
 });
 connectDB()

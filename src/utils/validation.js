@@ -11,4 +11,9 @@ const userValidation = (req) => {
     );
   }
 };
-module.exports = { userValidation };
+const loginValidation = (email) => {
+  if (!validator.isEmail(email)) {
+    throw new Error("Please enter valid email id");
+  }
+};
+module.exports = { userValidation, loginValidation };
