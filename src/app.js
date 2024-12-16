@@ -125,6 +125,7 @@ app.post("/login", async (req, res) => {
     }
     const isPass = await bcrypt.compare(password, user.password);
     if (isPass) {
+      res.cookie("token", "ggerrerergereg");
       res.send("Login successful");
     } else {
       throw new Error("Invalid crendentials");
