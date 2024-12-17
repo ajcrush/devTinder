@@ -4,100 +4,12 @@ const connectDB = require("./config/database");
 const User = require("./config/models/user");
 const { userValidation, loginValidation } = require("./utils/validation");
 const bcrypt = require("bcrypt");
+const cookie_parser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
+const { userAuth } = require("./middlewares/auth");
 
+app.use(cookie_parser());
 app.use(express.json());
-// Get user by Email(/user)
-app.get("/user", async (req, res) => {
-  const userEmail = req.body.emailId;
-  try {
-    const user = await User.findOne({ emailId: userEmail });
-    if (!user) {
-      res.status(404).send("User not found");
-    } else {
-      res.send(user);
-    }
-  } catch (err) {
-    res.status(400).send("Something went wrong");
-  }
-});
-// Get user by ID(/userId)
-app.get("/userId", async (req, res) => {
-  const userId = req.body.id;
-  try {
-    const user = await User.findById(userId);
-    if (!user) {
-      res.status(404).send("User not found");
-    } else {
-      res.send(user);
-    }
-  } catch (err) {
-    res.status(400).send("Something went wrong");
-  }
-});
-// DELETE user by ID
-app.delete("/user", async (req, res) => {
-  const userId = req.body.userId;
-  try {
-    const user = await User.findByIdAndDelete(userId);
-    if (!user) {
-      res.status(404).send("User not found");
-    } else {
-      res.send("User deleted successfully");
-    }
-  } catch (err) {
-    res.status(400).send("Something went wrong");
-  }
-});
-// Update data from User(id)
-app.patch("/user/:userId", async (req, res) => {
-  const userId = req.params.userId;
-  const body = req.body;
-  try {
-    const ALLOWED_UPDATES = ["gender", "skills", "age", "about", "photoUrl"];
-    const isValid = Object.keys(body).every((key) =>
-      ALLOWED_UPDATES.includes(key)
-    );
-    if (!isValid) {
-      throw new Error("Invalid update fields!! ");
-    }
-    const user = await User.findByIdAndUpdate(userId, body, {
-      runValidators: true,
-    });
-    if (!user) {
-      res.status(404).send("User not found");
-    } else {
-      res.send("user updated successfully");
-    }
-  } catch (err) {
-    res.status(400).send("Update of user failed " + err.message);
-  }
-});
-// Update data of user  using email
-app.patch("/userEmail", async (req, res) => {
-  const userEmail = req.body.emailId;
-  const body = req.body;
-  try {
-    const user = await User.findOneAndUpdate({ emailId: userEmail }, body, {
-      runValidators: true,
-    });
-    if (!user) {
-      res.status(404).send("User not found");
-    } else {
-      res.send("Update of user failed " + err.message);
-    }
-  } catch (err) {
-    res.status(400).send("Something went wrong");
-  }
-});
-// feed API - GET/ feed - get all users from the database
-app.get("/feed", async (req, res) => {
-  try {
-    const users = await User.find({});
-    res.send(users);
-  } catch (err) {
-    res.status(400).send("Something went wrong");
-  }
-});
 app.post("/signup", async (req, res) => {
   try {
     userValidation(req);
@@ -123,15 +35,37 @@ app.post("/login", async (req, res) => {
     if (!user) {
       throw new Error("Invalid crendentials");
     }
-    const isPass = await bcrypt.compare(password, user.password);
+    const isPass = await user.validatePassword(password);
     if (isPass) {
-      res.cookie("token", "ggerrerergereg");
+      const jwtToken = await user.generateAuthToken();
+      res.cookie("token", jwtToken);
       res.send("Login successful");
     } else {
       throw new Error("Invalid crendentials");
     }
   } catch (err) {
     res.status(500).send(`Error : ${err.message}`);
+  }
+});
+app.get("/profile", userAuth, async (req, res) => {
+  try {
+    const user = req.user;
+    res.send({
+      success: true,
+      message: "Profile retrieved successfully",
+      data: user,
+    });
+  } catch (err) {
+    res.status(500).send(`Error : ${err.message}`);
+  }
+});
+app.post("/sendConnection", userAuth, async (req, res, next) => {
+  try {
+    const user = req.user;
+
+    res.send(`${user.firstName} is sending connection request`);
+  } catch (err) {
+    res.status(500).send("Error : " + err.message);
   }
 });
 connectDB()
