@@ -16,4 +16,54 @@ const loginValidation = (email) => {
     throw new Error("Please enter valid email id");
   }
 };
-module.exports = { userValidation, loginValidation };
+const validateEditProfileData = (req) => {
+  const allowedEditFields = [
+    "firstName",
+    "lastName",
+    "photoUrl",
+    "about",
+    "skills",
+  ];
+  const isAllowed = Object.keys(req.body).every((field) =>
+    allowedEditFields.includes(field)
+  );
+  if (!validator.isURL(req.body.photoUrl)) {
+    return false;
+  }
+  return isAllowed;
+};
+const validateInputPassword = (req) => {
+  const allowedEditFields = ["currentPassword", "newPassword"];
+  const isAllowed = Object.keys(req.body).every((field) =>
+    allowedEditFields.includes(field)
+  );
+  if (!isAllowed) {
+    return {
+      isValid: false,
+      message: "Invalid fields in the request body.",
+    };
+  }
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword) {
+    return {
+      isValid: false,
+      message: "Both current and new passwords are required",
+    };
+  }
+  if (!validator.isStrongPassword(newPassword)) {
+    return {
+      isValid: false,
+      message:
+        "New password must be at least 8 characters long, contain a mix of letters, numbers, and special characters.",
+    };
+  }
+  return {
+    isValid: true,
+  };
+};
+module.exports = {
+  userValidation,
+  validateEditProfileData,
+  validateInputPassword,
+  loginValidation,
+};

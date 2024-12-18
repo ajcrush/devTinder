@@ -23,6 +23,6 @@ userRouter
 
 - GET /user/connections
 - GET /user/requests/recieved
-- GET /user/feed - Gets you the rofile of other user on the platform
+- GET /user/feed - Gets you the profile of other user on the platform
 
 Status: Ignore, Interested, Accepted, Rejected
