@@ -37,21 +37,31 @@ profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
 });
 profileRouter.patch("/profile/password", userAuth, async (req, res) => {
   try {
+    // Validate the input data
     const validationResult = validateInputPassword(req);
     if (!validationResult.isValid) {
       return res.status(400).send(validationResult.message);
     }
+
+    // Access the authenticated user and input data
     const user = req.user;
     const { currentPassword, newPassword } = req.body;
+
+    // Check if the current password matches the stored hash
     const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) {
       return res.status(401).send("Current password is incorrect.");
     }
+
+    // Hash the new password and update it
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedNewPassword;
-    user.save();
-    res.status(200).send("Password updated successfully!!");
+    await user.save();
+
+    // Respond with success
+    res.status(200).send("Password updated successfully!");
   } catch (err) {
+    // Catch unexpected errors and respond
     res.status(500).send(`Error: ${err.message}`);
   }
 });
