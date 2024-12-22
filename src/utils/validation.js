@@ -26,11 +26,13 @@ const validateEditProfileData = (req) => {
     "photoUrl",
     "about",
     "skills",
+    "gender",
+    "age",
   ];
   const isAllowed = Object.keys(req.body).every((field) =>
     allowedEditFields.includes(field)
   );
-  if (!validator.isURL(req.body.photoUrl)) {
+  if (req.body.photoUrl && !validator.isURL(req.body.photoUrl)) {
     return false;
   }
   return isAllowed;
@@ -105,10 +107,37 @@ const connectionRequestValidation = async (fromUserId, toUserId, status) => {
   }
   return user;
 };
+const connectionReviewValidation = async (loggedInUser, status, requestId) => {
+  const isAllowedStatus = ["accepted", "rejected"];
+
+  //Validate status
+  if (!isAllowedStatus.includes(status)) {
+    throw new Error(
+      "Invalid status. Allowed statuses are: accepted, rejected."
+    );
+  }
+
+  //Validate requestId format
+  if (!mongoose.Types.ObjectId.isValid(requestId)) {
+    throw new Error("Invalid requestId format");
+  }
+
+  // Find the connection request for loggedIn user
+  const connectionRequest = await ConnectionRequest.findOne({
+    _id: requestId,
+    toUserId: loggedInUser._id,
+    status: "interested",
+  });
+  if (!connectionRequest) {
+    throw new Error("Connection request not found or already processed.");
+  }
+  return connectionRequest;
+};
 module.exports = {
   userValidation,
   validateEditProfileData,
   validateInputPassword,
   loginValidation,
   connectionRequestValidation,
+  connectionReviewValidation,
 };

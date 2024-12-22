@@ -76,10 +76,10 @@ userSchema.methods.generateAuthToken = async function () {
 };
 userSchema.methods.validatePassword = async function (passwordInputByUser) {
   const user = this;
-  const passwordHasehd = user.password;
+  const passwordHashed = user.password;
   const isPasswordValid = await bcrypt.compare(
     passwordInputByUser,
-    passwordHasehd
+    passwordHashed
   );
   return isPasswordValid;
 };
