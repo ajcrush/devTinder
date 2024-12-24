@@ -2,6 +2,7 @@ const express = require("express");
 const { userAuth } = require("../middlewares/auth");
 const userRouter = express.Router();
 const ConnectionRequest = require("../config/models/connectionRequest");
+const User = require("../config/models/user");
 const USER_SAFE_DATA = [
   "firstName",
   "lastName",
@@ -45,6 +46,28 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
     res.json({
       data,
     });
+  } catch (err) {
+    res.status(400).send("Error : " + err.message);
+  }
+});
+userRouter.get("/user/feed", userAuth, async (req, res) => {
+  try {
+    const loggedInUser = req.user;
+    const connectionRequests = await ConnectionRequest.find({
+      $or: [{ fromUserId: loggedInUser._id }, { toUserId: loggedInUser._id }],
+    });
+    const hiddenUserFromFeed = new Set();
+    connectionRequests.forEach((request) => {
+      hiddenUserFromFeed.add(request.fromUserId.toString());
+      hiddenUserFromFeed.add(request.toUserId.toString());
+    });
+    const user = await User.find({
+      $and: [
+        { _id: { $nin: Array.from(hiddenUserFromFeed) } },
+        { _id: { $ne: loggedInUser._id } },
+      ],
+    }).select(USER_SAFE_DATA);
+    res.send(user);
   } catch (err) {
     res.status(400).send("Error : " + err.message);
   }
