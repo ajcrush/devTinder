@@ -33,7 +33,7 @@ authRouter.post("/login", async (req, res) => {
     if (isPass) {
       const jwtToken = await user.generateAuthToken();
       res.cookie("token", jwtToken);
-      res.send("Login successful");
+      res.send(user);
     } else {
       throw new Error("Invalid crendentials");
     }
