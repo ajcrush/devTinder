@@ -5,7 +5,6 @@ const bcrypt = require("bcrypt");
 const authRouter = express.Router();
 authRouter.post("/signup", async (req, res) => {
   try {
-    console.log("Hi");
     userValidation(req);
     const { emailId, password, firstName, lastName } = req.body;
     const passHash = await bcrypt.hash(password, 10);
@@ -33,7 +32,11 @@ authRouter.post("/login", async (req, res) => {
     if (isPass) {
       const jwtToken = await user.generateAuthToken();
       res.cookie("token", jwtToken);
-      res.send(user);
+      res.json({
+        success: true,
+        message: "Profile retrieved successfully",
+        data: user,
+      });
     } else {
       throw new Error("Invalid crendentials");
     }
