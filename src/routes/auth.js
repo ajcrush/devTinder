@@ -14,8 +14,10 @@ authRouter.post("/signup", async (req, res) => {
       lastName,
       password: passHash,
     });
-    await user.save();
-    res.send("User Add Successfully");
+    const newUser = await user.save();
+    const jwtToken = await newUser.generateAuthToken();
+    res.cookie("token", jwtToken);
+    res.json({ message: "User Add Successfully", data: newUser });
   } catch (err) {
     res.status(500).send(`Error adding user : ${err.message}`);
   }
