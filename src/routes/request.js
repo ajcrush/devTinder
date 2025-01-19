@@ -1,6 +1,7 @@
 const express = require("express");
 const { userAuth } = require("../middlewares/auth");
 const ConnectionRequest = require("../config/models/connectionRequest");
+const sendEmail = require("../utils/sendEmail");
 const User = require("../config/models/user");
 const {
   connectionRequestValidation,
@@ -27,6 +28,10 @@ requestRouter.post(
         status,
       });
       await requestUser.save();
+      const emailRes = await sendEmail.run(
+        "A new friend request from",
+        `Request sent successfully. User ${user.firstName} has been notified of your interest.`
+      );
       let message;
       if (status === "interested") {
         message = `Request sent successfully. User ${user.firstName} has been notified of your interest.`;

@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
-const url =
-  "mongodb+srv://mohitanand89878:KaXQhLGwVJG1I5Xc@namastenode.gvwka.mongodb.net/devTinder";
+require("dotenv").config();
+const url = process.env.DB_CONNECTION_SECRET;
 const connectDB = async () => {
   await mongoose.connect(url);
 };

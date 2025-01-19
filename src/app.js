@@ -6,8 +6,9 @@ const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
-const cors = require("cors");
 
+const cors = require("cors");
+require("dotenv").config();
 // CORS Setup - Ensure it is applied before routes
 app.use(
   cors({
@@ -34,7 +35,7 @@ app.options("*", cors()); // This ensures that the server responds to OPTIONS re
 connectDB()
   .then(() => {
     console.log("Database connection established");
-    app.listen(7777, () => {
+    app.listen(process.env.PORT, () => {
       console.log("Server is working");
     });
   })
