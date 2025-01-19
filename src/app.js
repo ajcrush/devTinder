@@ -9,6 +9,7 @@ const userRouter = require("./routes/user");
 
 const cors = require("cors");
 require("dotenv").config();
+require("./utils/cronJobs");
 // CORS Setup - Ensure it is applied before routes
 app.use(
   cors({
