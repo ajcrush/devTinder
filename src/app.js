@@ -6,6 +6,8 @@ const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
+const http = require("http");
+const initializeSocket = require("./utils/socket");
 
 const cors = require("cors");
 require("dotenv").config();
@@ -31,12 +33,14 @@ app.use("/", userRouter);
 
 // Preflight (OPTIONS) handling for CORS if needed
 app.options("*", cors()); // This ensures that the server responds to OPTIONS requests
+const server = http.createServer(app);
+initializeSocket(server);
 
 // Connect to the database and start the server
 connectDB()
   .then(() => {
     console.log("Database connection established");
-    app.listen(process.env.PORT, () => {
+    server.listen(process.env.PORT, () => {
       console.log("Server is working");
     });
   })
