@@ -133,6 +133,17 @@ const connectionReviewValidation = async (loggedInUser, status, requestId) => {
   }
   return connectionRequest;
 };
+const chatValidation = (targetUserId, userId) => {
+  if (!targetUserId) {
+    throw new Error("Please provide a target user ID.");
+  }
+  if (!mongoose.Types.ObjectId.isValid(targetUserId)) {
+    throw new Error("Invalid target user ID format.");
+  }
+  if (userId.toString() === targetUserId) {
+    throw new Error("Cannot start a chat with yourself.");
+  }
+};
 module.exports = {
   userValidation,
   validateEditProfileData,
@@ -140,4 +151,5 @@ module.exports = {
   loginValidation,
   connectionRequestValidation,
   connectionReviewValidation,
+  chatValidation,
 };
