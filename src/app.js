@@ -10,6 +10,7 @@ const http = require("http");
 const initializeSocket = require("./utils/socket");
 
 const cors = require("cors");
+const chatRouter = require("./routes/chat");
 require("dotenv").config();
 require("./utils/cronJobs");
 // CORS Setup - Ensure it is applied before routes
@@ -30,6 +31,7 @@ app.use("/", authRouter);
 app.use("/", requestRouter);
 app.use("/", profileRouter);
 app.use("/", userRouter);
+app.use("/", chatRouter);
 
 // Preflight (OPTIONS) handling for CORS if needed
 app.options("*", cors()); // This ensures that the server responds to OPTIONS requests
