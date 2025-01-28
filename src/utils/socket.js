@@ -29,24 +29,7 @@ const initializeSocket = (server) => {
         try {
           const roomId = getSecretRoomID(userId, targetUserId);
           console.log(firstName + " " + text);
-          // TODO: check if the userId and targetUserId are friends
-          const isFriend = await ConnectionRequestModel.findOne({
-            $or: [
-              {
-                fromUserId: userId,
-                toUserId: targetUserId,
-                status: "accepted",
-              },
-              {
-                toUserId: targetUserId,
-                fromUserId: userId,
-                status: "accepted",
-              },
-            ],
-          });
-          if (!isFriend) {
-            throw new Error("You are not friends.");
-          }
+
           let chat = await Chat.findOne({
             participants: { $all: [userId, targetUserId] },
           });
