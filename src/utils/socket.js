@@ -47,6 +47,15 @@ const initializeSocket = (server) => {
         }
       }
     );
+    socket.on("offer", ({ target, offer }) => {
+      socket.to(target).emit("offer", { from: socket.id, offer });
+    });
+    socket.on("answer", ({ target, answer }) => {
+      socket.to(target).emit("answer", { from: socket.id, answer });
+    });
+    socket.on("ice-candidate", ({ target, candidate }) => {
+      socket.to(target).emit("ice-candidate", { from: socket.id, candidate });
+    });
     socket.on("disconnect", () => {});
   });
 };
